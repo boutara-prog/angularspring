@@ -1,0 +1,194 @@
+<div class="register-container">
+  <div class="register-card">
+    <h2 class="register-title">Inscription</h2>
+    
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
+      <!-- Nom et Prénom -->
+      <div class="form-row">
+        <div class="form-group half-width">
+          <label for="nom">Nom <span class="required">*</span>:</label>
+          <input
+            type="text"
+            id="nom"
+            formControlName="nom"
+            class="form-control"
+            [class.error]="registerForm.get('nom')?.invalid && registerForm.get('nom')?.touched"
+            placeholder="Votre nom"
+          />
+          <div class="error-message" *ngIf="registerForm.get('nom')?.invalid && registerForm.get('nom')?.touched">
+            <span *ngIf="registerForm.get('nom')?.errors?.['required']">Le nom est requis</span>
+            <span *ngIf="registerForm.get('nom')?.errors?.['minlength']">Au moins 2 caractères</span>
+          </div>
+        </div>
+
+        <div class="form-group half-width">
+          <label for="prenom">Prénom <span class="required">*</span>:</label>
+          <input
+            type="text"
+            id="prenom"
+            formControlName="prenom"
+            class="form-control"
+            [class.error]="registerForm.get('prenom')?.invalid && registerForm.get('prenom')?.touched"
+            placeholder="Votre prénom"
+          />
+          <div class="error-message" *ngIf="registerForm.get('prenom')?.invalid && registerForm.get('prenom')?.touched">
+            <span *ngIf="registerForm.get('prenom')?.errors?.['required']">Le prénom est requis</span>
+            <span *ngIf="registerForm.get('prenom')?.errors?.['minlength']">Au moins 2 caractères</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label for="email">Email <span class="required">*</span>:</label>
+        <input
+          type="email"
+          id="email"
+          formControlName="email"
+          class="form-control"
+          [class.error]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched"
+          placeholder="votre.email@exemple.com"
+        />
+        <div class="error-message" *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
+          <span *ngIf="registerForm.get('email')?.errors?.['required']">L'email est requis</span>
+          <span *ngIf="registerForm.get('email')?.errors?.['email']">Format d'email invalide</span>
+        </div>
+      </div>
+
+      <!-- Type d'utilisateur -->
+      <div class="form-group">
+        <label for="userType">Type d'utilisateur <span class="required">*</span>:</label>
+        <select
+          id="userType"
+          formControlName="userType"
+          class="form-control"
+          [class.error]="registerForm.get('userType')?.invalid && registerForm.get('userType')?.touched"
+        >
+          <option value="">Sélectionnez votre type</option>
+          <option value="CLIENT">Client - Je souhaite acheter des produits</option>
+          <option value="FOURNISSEUR">Fournisseur - Je souhaite vendre des produits</option>
+        </select>
+        <div class="error-message" *ngIf="registerForm.get('userType')?.invalid && registerForm.get('userType')?.touched">
+          <span *ngIf="registerForm.get('userType')?.errors?.['required']">Veuillez sélectionner votre type d'utilisateur</span>
+        </div>
+      </div>
+
+      <!-- SECTION FOURNISSEUR - Affichée uniquement si userType === 'FOURNISSEUR' -->
+      <div *ngIf="isFournisseur" class="fournisseur-section">
+        <div class="info-box">
+          <i class="fas fa-info-circle"></i>
+          En tant que fournisseur, vous devez remplir ces informations supplémentaires
+        </div>
+
+        <div class="form-group">
+          <label for="telephone">Téléphone <span class="required">*</span>:</label>
+          <input
+            type="tel"
+            id="telephone"
+            formControlName="telephone"
+            class="form-control"
+            [class.error]="registerForm.get('telephone')?.invalid && registerForm.get('telephone')?.touched"
+            placeholder="Ex: 0612345678"
+          />
+          <div class="error-message" *ngIf="registerForm.get('telephone')?.invalid && registerForm.get('telephone')?.touched">
+            <span *ngIf="registerForm.get('telephone')?.errors?.['required']">Le téléphone est requis pour les fournisseurs</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="adresse">Adresse <span class="required">*</span>:</label>
+          <textarea
+            id="adresse"
+            formControlName="adresse"
+            class="form-control"
+            rows="3"
+            [class.error]="registerForm.get('adresse')?.invalid && registerForm.get('adresse')?.touched"
+            placeholder="Votre adresse complète"
+          ></textarea>
+          <div class="error-message" *ngIf="registerForm.get('adresse')?.invalid && registerForm.get('adresse')?.touched">
+            <span *ngIf="registerForm.get('adresse')?.errors?.['required']">L'adresse est requise pour les fournisseurs</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="entreprise">Nom de l'entreprise <span class="required">*</span>:</label>
+          <input
+            type="text"
+            id="entreprise"
+            formControlName="entreprise"
+            class="form-control"
+            [class.error]="registerForm.get('entreprise')?.invalid && registerForm.get('entreprise')?.touched"
+            placeholder="Ex: Mon Entreprise SARL"
+          />
+          <div class="error-message" *ngIf="registerForm.get('entreprise')?.invalid && registerForm.get('entreprise')?.touched">
+            <span *ngIf="registerForm.get('entreprise')?.errors?.['required']">Le nom de l'entreprise est requis</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mots de passe -->
+      <div class="form-row">
+        <div class="form-group half-width">
+          <label for="password">Mot de passe <span class="required">*</span>:</label>
+          <input
+            type="password"
+            id="password"
+            formControlName="password"
+            class="form-control"
+            [class.error]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
+            placeholder="Au moins 6 caractères"
+          />
+          <div class="error-message" *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
+            <span *ngIf="registerForm.get('password')?.errors?.['required']">Le mot de passe est requis</span>
+            <span *ngIf="registerForm.get('password')?.errors?.['minlength']">Au moins 6 caractères</span>
+          </div>
+        </div>
+
+        <div class="form-group half-width">
+          <label for="confirmPassword">Confirmer le mot de passe <span class="required">*</span>:</label>
+          <input
+            type="password"
+            id="confirmPassword"
+            formControlName="confirmPassword"
+            class="form-control"
+            [class.error]="registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched"
+            placeholder="Répétez le mot de passe"
+          />
+          <div class="error-message" *ngIf="registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched">
+            <span *ngIf="registerForm.get('confirmPassword')?.errors?.['required']">La confirmation est requise</span>
+            <span *ngIf="registerForm.get('confirmPassword')?.errors?.['mismatch']">Les mots de passe ne correspondent pas</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Messages -->
+      <div class="success-message" *ngIf="successMessage">
+        <i class="fas fa-check-circle"></i> {{ successMessage }}
+      </div>
+
+      <div class="error-message" *ngIf="errorMessage">
+        <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+      </div>
+
+      <!-- Bouton -->
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="isLoading || !registerForm.valid"
+      >
+        <span *ngIf="isLoading">
+          <i class="fas fa-spinner fa-spin"></i> Inscription en cours...
+        </span>
+        <span *ngIf="!isLoading">
+          <i class="fas fa-user-plus"></i> S'inscrire
+        </span>
+      </button>
+
+      <div class="login-link">
+        <p>Déjà un compte? 
+          <a (click)="goToLogin()" class="link">Se connecter</a>
+        </p>
+      </div>
+    </form>
+  </div>
+</div>

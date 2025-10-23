@@ -1,0 +1,219 @@
+<div class="container mt-4">
+  <h2>Tableau de Bord</h2>
+  
+  <!-- Statistiques Globales -->
+  <div class="row mb-4" *ngIf="statistiquesGlobales">
+    <div class="col-md-3">
+      <div class="card text-bg-primary">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div>
+              <h4>{{ statistiquesGlobales.totalCommandes }}</h4>
+              <p class="mb-0">Total Commandes</p>
+            </div>
+            <div class="align-self-center">
+              <i class="fas fa-shopping-cart fa-2x opacity-75"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-3">
+      <div class="card text-bg-success">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div>
+              <h4>{{ statistiquesGlobales.chiffreAffairesMensuel | currency:'EUR':'symbol':'1.0-0' }}</h4>
+              <p class="mb-0">Chiffre d'Affaires</p>
+            </div>
+            <div class="align-self-center">
+              <i class="fas fa-euro-sign fa-2x opacity-75"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-3">
+      <div class="card text-bg-info">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div>
+              <h4>{{ statistiquesGlobales.totalProduits }}</h4>
+              <p class="mb-0">Produits Vendus</p>
+            </div>
+            <div class="align-self-center">
+              <i class="fas fa-box fa-2x opacity-75"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-3">
+      <div class="card text-bg-warning">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div>
+              <h4>{{ statistiquesGlobales.totalClients }}</h4>
+              <p class="mb-0">Clients Actifs</p>
+            </div>
+            <div class="align-self-center">
+              <i class="fas fa-users fa-2x opacity-75"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Top Produits -->
+    <div class="col-md-6 mb-4">
+      <div class="card">
+        <div class="card-header">
+          <h5><i class="fas fa-trophy text-warning"></i> Top 5 Produits</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>Produit</th>
+                  <th>Qté Vendue</th>
+                  <th>CA</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let produit of topProducts; let i = index">
+                  <td>
+                    <span class="badge bg-secondary me-2">{{ i + 1 }}</span>
+                    {{ produit.nomProduit }}
+                  </td>
+                  <td>{{ produit.quantiteVendue }}</td>
+                  <td>{{ produit.montantTotal | currency:'EUR':'symbol':'1.2-2' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div *ngIf="topProducts.length === 0" class="text-center py-3">
+            <p class="text-muted">Aucune donnée disponible</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Clients -->
+    <div class="col-md-6 mb-4">
+      <div class="card">
+        <div class="card-header">
+          <h5><i class="fas fa-star text-warning"></i> Top 5 Clients</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>Client</th>
+                  <th>Commandes</th>
+                  <th>Montant Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let client of topClients; let i = index">
+                  <td>
+                    <span class="badge bg-secondary me-2">{{ i + 1 }}</span>
+                    {{ client.nomClient }} {{ client.prenomClient }}
+                  </td>
+                  <td>{{ client.nombreCommandes }}</td>
+                  <td>{{ client.montantTotal | currency:'EUR':'symbol':'1.2-2' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div *ngIf="topClients.length === 0" class="text-center py-3">
+            <p class="text-muted">Aucune donnée disponible</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ventes Mensuelles -->
+  <div class="row">
+    <div class="col-md-8 mb-4">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5><i class="fas fa-chart-line text-primary"></i> Ventes Mensuelles</h5>
+          <select class="form-select w-auto" [(ngModel)]="selectedYear" (change)="onYearChange()">
+            <option *ngFor="let year of availableYears" [value]="year">{{ year }}</option>
+          </select>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Mois</th>
+                  <th>Nombre de Commandes</th>
+                  <th>Montant des Ventes</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let vente of ventesMensuelles">
+                  <td>{{ getMonthName(vente.mois) }} {{ vente.annee }}</td>
+                  <td>{{ vente.nombreCommandes }}</td>
+                  <td>{{ vente.montantTotal | currency:'EUR':'symbol':'1.2-2' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div *ngIf="ventesMensuelles.length === 0" class="text-center py-3">
+            <p class="text-muted">Aucune donnée pour l'année {{ selectedYear }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Calcul CA par Période -->
+    <div class="col-md-4 mb-4">
+      <div class="card">
+        <div class="card-header">
+          <h5><i class="fas fa-calculator text-success"></i> CA par Période</h5>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label for="dateDebut" class="form-label">Date début</label>
+            <input type="date" class="form-control" id="dateDebut" [(ngModel)]="dateDebut">
+          </div>
+          
+          <div class="mb-3">
+            <label for="dateFin" class="form-label">Date fin</label>
+            <input type="date" class="form-control" id="dateFin" [(ngModel)]="dateFin">
+          </div>
+          
+          <button class="btn btn-primary w-100 mb-3" (click)="calculateRevenue()"
+                  [disabled]="!dateDebut || !dateFin">
+            <i class="fas fa-search"></i> Calculer
+          </button>
+          
+          <div *ngIf="revenueByPeriod !== null" class="alert alert-success">
+            <h6>Résultat:</h6>
+            <h4>{{ revenueByPeriod | currency:'EUR':'symbol':'1.2-2' }}</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Spinner de chargement -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+  </div>
+</div>

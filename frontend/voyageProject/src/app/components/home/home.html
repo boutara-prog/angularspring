@@ -1,0 +1,136 @@
+<div class="hero-section">
+  <div class="floating-elements">
+    <div class="floating-circle"></div>
+    <div class="floating-circle"></div>
+    <div class="floating-circle"></div>
+  </div>
+
+  <div class="hero-content">
+    <div class="hero-text">
+      <h1>Voyagez moins cher, <span class="highlight">ensemble</span></h1>
+      <p>Partagez vos trajets en voiture avec des millions de personnes. Économique, convivial et écologique.</p>
+    </div>
+
+    <div class="search-card">
+      <!-- Search Tabs -->
+      <div class="search-tabs">
+        <button 
+          class="tab" 
+          [class.active]="activeTab === 'search'"
+          (click)="setActiveTab('search')">
+          <i class="fas fa-search"></i>
+          Rechercher un trajet
+        </button>
+        <button 
+          class="tab" 
+          [class.active]="activeTab === 'publish'"
+          (click)="setActiveTab('publish')">
+          <i class="fas fa-plus"></i>
+          Publier un trajet
+        </button>
+      </div>
+
+      <!-- Search Form -->
+      <div class="tab-content" *ngIf="activeTab === 'search'">
+        <form [formGroup]="searchForm" (ngSubmit)="onSearch()">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="departure">
+                <i class="fas fa-map-marker-alt"></i>
+                Départ
+              </label>
+              <input 
+                id="departure"
+                type="text" 
+                formControlName="departure"
+                placeholder="Ville, gare, aéroport..."
+                class="form-control"
+                [class.error]="searchForm.get('departure')?.invalid && searchForm.get('departure')?.touched">
+            </div>
+            
+            <div class="form-group">
+              <label for="arrival">
+                <i class="fas fa-map-marker-alt"></i>
+                Arrivée
+              </label>
+              <input 
+                id="arrival"
+                type="text" 
+                formControlName="arrival"
+                placeholder="Ville, gare, aéroport..."
+                class="form-control"
+                [class.error]="searchForm.get('arrival')?.invalid && searchForm.get('arrival')?.touched">
+            </div>
+            
+            <div class="form-group">
+              <label for="date">
+                <i class="fas fa-calendar"></i>
+                Date
+              </label>
+              <input 
+                id="date"
+                type="date" 
+                formControlName="date"
+                class="form-control"
+                [class.error]="searchForm.get('date')?.invalid && searchForm.get('date')?.touched">
+            </div>
+          </div>
+
+          <div class="passengers-row">
+            <div class="form-group passengers-group">
+              <label>
+                <i class="fas fa-user"></i>
+                Passagers
+              </label>
+              <select formControlName="passengers" class="form-control">
+                <option [value]="i" *ngFor="let i of [1,2,3,4,5,6,7,8]">
+                  {{i}} passager{{i > 1 ? 's' : ''}}
+                </option>
+              </select>
+            </div>
+          </div>
+          
+          <button 
+            type="submit" 
+            class="btn-search" 
+            [disabled]="!searchForm.valid || isLoading">
+            <i class="fas fa-search" *ngIf="!isLoading"></i>
+            <i class="fas fa-spinner fa-spin" *ngIf="isLoading"></i>
+            {{ isLoading ? 'Recherche...' : 'Rechercher' }}
+          </button>
+        </form>
+      </div>
+
+      <!-- Publish Content -->
+      <div class="tab-content" *ngIf="activeTab === 'publish'">
+        <div class="publish-content">
+          <div class="publish-icon">
+            <i class="fas fa-car"></i>
+          </div>
+          <h3>Publiez votre trajet en quelques clics</h3>
+          <p>Gagnez de l'argent en partageant vos frais de route avec des passagers.</p>
+          <button class="btn-publish-action" (click)="onPublish()">
+            <i class="fas fa-plus"></i>
+            Publier un trajet
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Popular Routes -->
+    <div class="popular-routes" *ngIf="popularRoutes.length && activeTab === 'search'">
+      <h3>Trajets populaires</h3>
+      <div class="routes-grid">
+        <div 
+          *ngFor="let route of popularRoutes" 
+          class="route-card"
+          (click)="selectRoute(route)">
+          <span class="departure">{{ route.departure }}</span>
+          <i class="fas fa-arrow-right"></i>
+          <span class="arrival">{{ route.arrival }}</span>
+          <span class="count">{{ route.count }} trajets</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,121 @@
+<div class="login-container">
+  <div class="login-card">
+    <div class="login-header">
+      <i class="fas fa-sign-in-alt"></i>
+      <h2 class="login-title">Connexion</h2>
+      <p class="login-subtitle">Accédez à votre espace</p>
+    </div>
+    
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      <!-- Email -->
+      <div class="form-group">
+        <label for="email">
+          <i class="fas fa-envelope"></i> Email <span class="required">*</span>
+        </label>
+        <input
+          type="email"
+          id="email"
+          formControlName="email"
+          class="form-control"
+          [class.error]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
+          placeholder="votre.email@exemple.com"
+          autocomplete="email"
+        />
+        <div class="error-message" *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+          <i class="fas fa-exclamation-circle"></i>
+          <span *ngIf="loginForm.get('email')?.errors?.['required']">L'email est requis</span>
+          <span *ngIf="loginForm.get('email')?.errors?.['email']">Format d'email invalide</span>
+        </div>
+      </div>
+
+      <!-- Mot de passe -->
+      <div class="form-group">
+        <label for="password">
+          <i class="fas fa-lock"></i> Mot de passe <span class="required">*</span>
+        </label>
+        <div class="password-input-wrapper">
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            id="password"
+            formControlName="password"
+            class="form-control"
+            [class.error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+            placeholder="Entrez votre mot de passe"
+            autocomplete="current-password"
+          />
+          <button 
+            type="button" 
+            class="toggle-password" 
+            (click)="showPassword = !showPassword"
+            tabindex="-1"
+          >
+            <i [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+          </button>
+        </div>
+        <div class="error-message" *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+          <i class="fas fa-exclamation-circle"></i>
+          <span *ngIf="loginForm.get('password')?.errors?.['required']">Le mot de passe est requis</span>
+          <span *ngIf="loginForm.get('password')?.errors?.['minlength']">Au moins 6 caractères</span>
+        </div>
+      </div>
+
+      
+
+      <!-- Messages d'erreur global -->
+      <div class="error-message global" *ngIf="errorMessage">
+        <i class="fas fa-exclamation-triangle"></i> {{ errorMessage }}
+      </div>
+
+      <!-- Messages de succès -->
+      <div class="success-message" *ngIf="successMessage">
+        <i class="fas fa-check-circle"></i> {{ successMessage }}
+      </div>
+
+      <!-- Bouton de connexion -->
+      <button
+        type="submit"
+        class="btn btn-primary btn-login"
+        [disabled]="isLoading || !loginForm.valid"
+      >
+        <span *ngIf="isLoading">
+          <i class="fas fa-spinner fa-spin"></i> Connexion en cours...
+        </span>
+        <span *ngIf="!isLoading">
+          <i class="fas fa-sign-in-alt"></i> Se connecter
+        </span>
+      </button>
+
+      <!-- Divider -->
+      <div class="divider">
+        <span>OU</span>
+      </div>
+
+      <!-- Lien d'inscription -->
+      <div class="register-link">
+        <p>Vous n'avez pas encore de compte ?</p>
+        <button type="button" class="btn btn-outline" (click)="goToRegister()">
+          <i class="fas fa-user-plus"></i> Créer un compte
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Section informative (optionnelle) -->
+  <div class="info-section">
+    <div class="info-card">
+      <i class="fas fa-shield-alt"></i>
+      <h3>Connexion sécurisée</h3>
+      <p>Vos données sont protégées par un cryptage de niveau bancaire</p>
+    </div>
+    <div class="info-card">
+      <i class="fas fa-shopping-cart"></i>
+      <h3>Gestion des commandes</h3>
+      <p>Suivez vos achats et gérez votre panier facilement</p>
+    </div>
+    <div class="info-card">
+      <i class="fas fa-headset"></i>
+      <h3>Support 24/7</h3>
+      <p>Notre équipe est là pour vous aider à tout moment</p>
+    </div>
+  </div>
+</div>

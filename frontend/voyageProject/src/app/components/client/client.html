@@ -1,0 +1,125 @@
+<div class="container mt-4">
+  <h2>Gestion des Clients</h2>
+  
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <button class="btn btn-primary" (click)="showAddForm()">
+        <i class="fas fa-plus"></i> Ajouter un Client
+      </button>
+    </div>
+    <div class="col-md-6">
+      <div class="input-group">
+        <input type="text" class="form-control" placeholder="Rechercher un client..." 
+               [(ngModel)]="searchTerm" (input)="searchClients()">
+        <button class="btn btn-outline-secondary" type="button" (click)="clearSearch()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulaire d'ajout/modification -->
+  <div class="card mb-4" *ngIf="showForm">
+    <div class="card-header">
+      <h5>{{ isEditing ? 'Modifier' : 'Ajouter' }} un Client</h5>
+    </div>
+    <div class="card-body">
+      <form (ngSubmit)="saveClient()" #clientForm="ngForm">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label for="nom" class="form-label">Nom *</label>
+              <input type="text" class="form-control" id="nom" 
+                     [(ngModel)]="newClient.nom" name="nom" required>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label for="prenom" class="form-label">Prénom *</label>
+              <input type="text" class="form-control" id="prenom" 
+                     [(ngModel)]="newClient.prenom" name="prenom" required>
+            </div>
+          </div>
+        </div>
+        
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label for="email" class="form-label">Email *</label>
+              <input type="email" class="form-control" id="email" 
+                     [(ngModel)]="newClient.email" name="email" required>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label for="telephone" class="form-label">Téléphone *</label>
+              <input type="tel" class="form-control" id="telephone" 
+                     [(ngModel)]="newClient.telephone" name="telephone" required>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="adresse" class="form-label">Adresse *</label>
+          <textarea class="form-control" id="adresse" rows="3" 
+                    [(ngModel)]="newClient.adresse" name="adresse" required></textarea>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-success" [disabled]="!clientForm.form.valid">
+            <i class="fas fa-save"></i> {{ isEditing ? 'Modifier' : 'Ajouter' }}
+          </button>
+          <button type="button" class="btn btn-secondary" (click)="hideForm()">
+            <i class="fas fa-times"></i> Annuler
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Liste des clients -->
+  <div class="card">
+    <div class="card-header">
+      <h5>Liste des Clients ({{ filteredClients.length }}/{{ clients.length }})</h5>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nom</th>
+              <th>Prénom</th>
+              <th>Email</th>
+              <th>Téléphone</th>
+              <th>Adresse</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let client of filteredClients">
+              <td>{{ client.id }}</td>
+              <td>{{ client.nom }}</td>
+              <td>{{ client.prenom }}</td>
+              <td>{{ client.email }}</td>
+              <td>{{ client.telephone }}</td>
+              <td>{{ client.adresse | slice:0:30 }}{{ client.adresse.length > 30 ? '...' : '' }}</td>
+              <td>
+                <button class="btn btn-sm btn-warning me-2" (click)="editClient(client)">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-danger" (click)="deleteClient(client.id!)">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        
+        <div *ngIf="filteredClients.length === 0" class="text-center py-4">
+          <p class="text-muted">{{ searchTerm ? 'Aucun client trouvé pour cette recherche.' : 'Aucun client enregistré.' }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

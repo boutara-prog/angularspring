@@ -1,0 +1,77 @@
+// Styles pour le modal
+.modal {
+  &.show {
+    display: block !important;
+    opacity: 1;
+  }
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1040;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  
+  &.show {
+    opacity: 1;
+  }
+}
+
+.modal-dialog {
+  z-index: 1050;
+}
+
+// Amélioration de l'affichage des badges de statut
+.badge {
+  padding: 0.5em 0.75em;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+// Style pour les boutons d'action groupés
+.btn-group {
+  .btn {
+    border-radius: 0;
+    
+    &:first-child {
+      border-top-left-radius: 0.25rem;
+      border-bottom-left-radius: 0.25rem;
+    }
+    
+    &:last-child {
+      border-top-right-radius: 0.25rem;
+      border-bottom-right-radius: 0.25rem;
+    }
+  }
+}
+
+// Animation pour le panier
+.card.border-success {
+  transition: box-shadow 0.3s ease;
+  
+  &:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  }
+}
+
+// Style pour les inputs de quantité
+input[type="number"] {
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    opacity: 1;
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .modal-dialog {
+    margin: 0.5rem;
+  }
+  
+  .table-responsive {
+    font-size: 0.875rem;
+  }
+}

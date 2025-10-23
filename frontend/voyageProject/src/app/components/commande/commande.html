@@ -1,0 +1,376 @@
+<div class="container mt-4">
+  <h2>
+    <i class="fas fa-shopping-cart"></i> 
+    <span *ngIf="isClient">Mes Commandes</span>
+    <span *ngIf="!isClient">Gestion des Commandes</span>
+  </h2>
+
+  <!-- Section PANIER pour les CLIENTS -->
+  <div *ngIf="isClient && panierItems.length > 0" class="card mb-4 border-success">
+    <div class="card-header bg-success text-white">
+      <h5 class="mb-0">
+        <i class="fas fa-shopping-basket"></i> Mon Panier 
+        <span class="badge bg-light text-success ms-2">{{ panierItems.length }} produit(s)</span>
+      </h5>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Produit</th>
+              <th>Prix Unitaire</th>
+              <th style="width: 150px;">Quantité</th>
+              <th>Sous-total</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of panierItems">
+              <td>
+                <strong>{{ item.produit.nomProd }}</strong><br>
+                <small class="text-muted">{{ item.produit.fournisseur?.entreprise }}</small>
+              </td>
+              <td>{{ item.produit.prix | currency:'EUR':'symbol':'1.2-2' }}</td>
+              <td>
+                <input type="number" class="form-control form-control-sm" 
+                       [(ngModel)]="item.quantite"
+                       (change)="updateQuantitePanier(item.produit.id!, item.quantite)"
+                       min="1" 
+                       [max]="item.produit.quantiteStock">
+              </td>
+              <td><strong>{{ item.sousTotal | currency:'EUR':'symbol':'1.2-2' }}</strong></td>
+              <td>
+                <button class="btn btn-sm btn-danger" 
+                        (click)="retirerDuPanier(item.produit.id!)">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3" class="text-end"><strong>Total:</strong></td>
+              <td colspan="2"><h4 class="text-success mb-0">{{ totalPanier | currency:'EUR':'symbol':'1.2-2' }}</h4></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <div class="d-flex gap-2 justify-content-end mt-3">
+        <button class="btn btn-outline-danger" (click)="viderPanier()">
+          <i class="fas fa-trash"></i> Vider le panier
+        </button>
+        <button class="btn btn-success btn-lg" (click)="creerCommandeDepuisPanier()">
+          <i class="fas fa-check"></i> Valider la commande
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Message si panier vide pour CLIENT -->
+  <div *ngIf="isClient && panierItems.length === 0" class="alert alert-info">
+    <i class="fas fa-info-circle"></i> Votre panier est vide. 
+    <a routerLink="/produit" class="alert-link">Parcourir le catalogue</a>
+  </div>
+
+  <!-- Bouton créer commande pour ADMIN (formulaire classique) -->
+  <button class="btn btn-primary mb-3" (click)="showCreateForm()" *ngIf="isAdmin">
+    <i class="fas fa-plus"></i> Créer une Commande
+  </button>
+
+  <!-- Formulaire de création de commande (ADMIN uniquement) -->
+  <div class="card mb-4" *ngIf="showForm && isAdmin">
+    <div class="card-header">
+      <h5>Créer une Nouvelle Commande</h5>
+    </div>
+    <div class="card-body">
+      <div class="mb-4">
+        <label for="client" class="form-label">Client *</label>
+        <select class="form-select" id="client" [(ngModel)]="selectedClient">
+          <option [ngValue]="null">Sélectionner un client</option>
+          <option *ngFor="let client of clients" [ngValue]="client">
+            {{ client.nom }} {{ client.prenom }} - {{ client.email }}
+          </option>
+        </select>
+      </div>
+
+      <div class="mb-4">
+        <h6>Lignes de Commande</h6>
+        <div *ngFor="let ligne of lignesCommande; let i = index" class="row mb-3 align-items-end">
+          <div class="col-md-5">
+            <label class="form-label">Produit</label>
+            <select class="form-select" [(ngModel)]="ligne.produit" 
+                    (change)="onProduitChange(i)">
+              <option [ngValue]="null">Sélectionner un produit</option>
+              <option *ngFor="let produit of produits" [ngValue]="produit">
+                {{ produit.nomProd }} - {{ produit.prix }}€ (Stock: {{ produit.quantiteStock }})
+              </option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Quantité</label>
+            <input type="number" class="form-control" [(ngModel)]="ligne.quantite" 
+                   min="1" [max]="ligne.produit?.quantiteStock || 999"
+                   (input)="onQuantiteChange(i)">
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Prix Unitaire</label>
+            <input type="text" class="form-control" 
+                   [value]="ligne.produit?.prix | currency:'EUR':'symbol':'1.2-2'" 
+                   readonly>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Sous-total</label>
+            <input type="text" class="form-control" 
+                   [value]="ligne.sousTotal | currency:'EUR':'symbol':'1.2-2'" 
+                   readonly>
+          </div>
+          <div class="col-md-1">
+            <button type="button" class="btn btn-danger btn-sm" 
+                    (click)="removeLigneCommande(i)" 
+                    [disabled]="lignesCommande.length === 1">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+        
+        <button type="button" class="btn btn-outline-primary btn-sm" (click)="addLigneCommande()">
+          <i class="fas fa-plus"></i> Ajouter une ligne
+        </button>
+      </div>
+
+      <div class="row">
+        <div class="col-md-8"></div>
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-body">
+              <h5>Total: {{ totalCommande | currency:'EUR':'symbol':'1.2-2' }}</h5>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex gap-2 mt-3">
+        <button type="button" class="btn btn-success" (click)="createCommande()"
+                [disabled]="!selectedClient || totalCommande === 0">
+          <i class="fas fa-save"></i> Créer la Commande
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="hideForm()">
+          <i class="fas fa-times"></i> Annuler
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Liste des commandes -->
+  <div class="card">
+    <div class="card-header">
+      <h5>
+        <span *ngIf="isClient">Historique de mes commandes</span>
+        <span *ngIf="!isClient">Liste des Commandes</span>
+        ({{ commandes.length }})
+      </h5>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Date</th>
+              <th *ngIf="!isClient">Client</th>
+              <th>Total</th>
+              <th>Statut</th>
+              <th>Détails</th>
+              <th *ngIf="isAdmin">Actions Admin</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let commande of commandes">
+              <td>#{{ commande.id }}</td>
+              <td>{{ commande.dateCMD | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td *ngIf="!isClient">
+                <!-- ✅ CORRECTION: Si client peut être null, gardez ?. sinon enlevez-le -->
+                <ng-container *ngIf="commande.client">
+                  {{ commande.client.nom }} {{ commande.client.prenom }}
+                </ng-container>
+                <span *ngIf="!commande.client" class="text-muted">N/A</span>
+              </td>
+              <td><strong>{{ commande.montantTotal | currency:'EUR':'symbol':'1.2-2' }}</strong></td>
+              <td>
+                <span [class]="getStatusBadgeClass(commande.status)">
+                  {{ getStatusLabel(commande.status) }}
+                </span>
+              </td>
+              <td>
+                <!-- Bouton Détails pour TOUS les utilisateurs -->
+                <button class="btn btn-sm btn-info" 
+                        (click)="showCommandeDetails(commande)"
+                        title="Voir les détails">
+                  <i class="fas fa-eye"></i> Détails
+                </button>
+              </td>
+              <td *ngIf="isAdmin">
+                <!-- Menu Actions Admin -->
+                <div class="dropdown">
+                  <button class="btn btn-sm btn-outline-primary dropdown-toggle" 
+                          type="button" 
+                          [id]="'dropdownMenu' + commande.id"
+                          data-bs-toggle="dropdown">
+                    <i class="fas fa-cog"></i>
+                  </button>
+                  <ul class="dropdown-menu" [attr.aria-labelledby]="'dropdownMenu' + commande.id">
+                    <li *ngIf="commande.status === statusCommande.EN_COURS">
+                      <a class="dropdown-item" href="#" 
+                         (click)="confirmerCommande(commande.id!); $event.preventDefault()">
+                        <i class="fas fa-check"></i> Confirmer
+                      </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li class="dropdown-header">Changer le statut:</li>
+                    <li *ngFor="let status of statusOptions">
+                      <a class="dropdown-item" href="#" 
+                         (click)="updateStatus(commande, status.value); $event.preventDefault()"
+                         [class.active]="commande.status === status.value">
+                        {{ status.label }}
+                      </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                      <a class="dropdown-item text-danger" href="#" 
+                         (click)="deleteCommande(commande.id!); $event.preventDefault()">
+                        <i class="fas fa-trash"></i> Supprimer
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        
+        <div *ngIf="commandes.length === 0" class="text-center py-4">
+          <p class="text-muted">
+            <span *ngIf="isClient">Vous n'avez pas encore passé de commande.</span>
+            <span *ngIf="!isClient">Aucune commande enregistrée.</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ MODAL DÉTAILS DE COMMANDE -->
+<div class="modal fade" [class.show]="showDetailsModal" 
+     [style.display]="showDetailsModal ? 'block' : 'none'" 
+     tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content" *ngIf="selectedCommande">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fas fa-file-invoice"></i> Détails Commande #{{ selectedCommande.id }}
+        </h5>
+        <button type="button" class="btn-close" (click)="closeDetailsModal()"></button>
+      </div>
+      
+      <div class="modal-body">
+        <!-- Informations générales -->
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <h6>Client</h6>
+            <!-- ✅ CORRECTION: Utiliser *ngIf pour gérer le null -->
+            <p *ngIf="selectedCommande.client">
+              <strong>{{ selectedCommande.client.nom }} {{ selectedCommande.client.prenom }}</strong><br>
+              <small class="text-muted">{{ selectedCommande.client.email }}</small><br>
+              <small class="text-muted" *ngIf="selectedCommande.client.telephone">
+                {{ selectedCommande.client.telephone }}
+              </small>
+            </p>
+            <p *ngIf="!selectedCommande.client" class="text-muted">Client non disponible</p>
+          </div>
+          <div class="col-md-6">
+            <h6>Commande</h6>
+            <p>
+              <strong>Date:</strong> {{ selectedCommande.dateCMD | date:'dd/MM/yyyy HH:mm' }}<br>
+              <strong>Statut:</strong> 
+              <span [class]="getStatusBadgeClass(selectedCommande.status)">
+                {{ getStatusLabel(selectedCommande.status) }}
+              </span><br>
+              <strong>Total:</strong> 
+              <span class="text-success fs-5">
+                {{ selectedCommande.montantTotal | currency:'EUR':'symbol':'1.2-2' }}
+              </span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Lignes de commande -->
+        <h6>Produits commandés</h6>
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead class="table-light">
+              <tr>
+                <th>Produit</th>
+                <th>Fournisseur</th>
+                <th class="text-center">Quantité</th>
+                <th class="text-end">Prix Unit.</th>
+                <th class="text-end">Sous-total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let ligne of lignesCommandeDetails">
+                <!-- ✅ CORRECTION: Gérer le null avec *ngIf ou fallback -->
+                <td>
+                  <ng-container *ngIf="ligne.produit">
+                    {{ ligne.produit.nomProd }}
+                  </ng-container>
+                  <span *ngIf="!ligne.produit" class="text-muted">N/A</span>
+                </td>
+                <td>
+                  <small class="text-muted">
+                    <ng-container *ngIf="ligne.produit && ligne.produit.fournisseur">
+                      {{ ligne.produit.fournisseur.entreprise }}
+                    </ng-container>
+                    <span *ngIf="!ligne.produit || !ligne.produit.fournisseur">N/A</span>
+                  </small>
+                </td>
+                <td class="text-center">{{ ligne.quantite }}</td>
+                <td class="text-end">{{ ligne.prixUnitaire | currency:'EUR':'symbol':'1.2-2' }}</td>
+                <td class="text-end">
+                  <strong>{{ ligne.sousTotal | currency:'EUR':'symbol':'1.2-2' }}</strong>
+                </td>
+              </tr>
+            </tbody>
+            <tfoot class="table-light">
+              <tr>
+                <td colspan="4" class="text-end"><strong>Total Commande:</strong></td>
+                <td class="text-end">
+                  <strong class="text-success fs-5">
+                    {{ selectedCommande.montantTotal | currency:'EUR':'symbol':'1.2-2' }}
+                  </strong>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <!-- Message si aucune ligne -->
+        <div *ngIf="lignesCommandeDetails.length === 0" class="alert alert-warning">
+          <i class="fas fa-exclamation-triangle"></i> Aucun détail disponible pour cette commande.
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeDetailsModal()">
+          <i class="fas fa-times"></i> Fermer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Backdrop pour le modal -->
+<div class="modal-backdrop fade" [class.show]="showDetailsModal" 
+     *ngIf="showDetailsModal"
+     (click)="closeDetailsModal()"></div>
